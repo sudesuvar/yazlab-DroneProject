@@ -22,7 +22,7 @@ def load_data(filepath="data.txt"):
                     continue
                 elif line == "DELIVERIES":
                     current_section = "DELIVERIES"
-                    print(f"  DATA_LOADER: DELIVERIES bölümüne geçildi.")
+                    print(f"  DATA_LOADE R: DELIVERIES bölümüne geçildi.")
                     continue
                 elif line == "NOFLYZONES":
                     current_section = "NOFLYZONES"
