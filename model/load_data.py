@@ -1,6 +1,6 @@
 import random
 from datetime import datetime, timedelta
-from data_structures import Drone, DeliveryPoint, NoFlyZone
+from model.data_structures import Drone, DeliveryPoint, NoFlyZone
 
 class LoadData:
     @staticmethod

@@ -1,5 +1,5 @@
 # data_loader.py
-from data_structures import Drone, DeliveryPoint, NoFlyZone
+from model.data_structures import Drone, DeliveryPoint, NoFlyZone
 from config import DEFAULT_CONSUMPTION_RATE_MAH_PER_METER # config.py'den import
 
 def load_data(filepath="data.txt"):
