@@ -90,9 +90,7 @@ if __name__ == "__main__":
     # Senaryo 1
     drones1, delivery_points1, no_fly_zones1 = LoadData.generate_random_data(5, 20, 2)
     LoadData.save_data_to_txt(drones1, delivery_points1, no_fly_zones1, "scenario_1.txt")
-    print("Scenario 1 saved to scenario_1.txt")
 
     # Senaryo 2
     drones2, delivery_points2, no_fly_zones2 = LoadData.generate_random_data(10, 50, 5)
     LoadData.save_data_to_txt(drones2, delivery_points2, no_fly_zones2, "scenario_2.txt")
-    print("Scenario 2 saved to scenario_2.txt")

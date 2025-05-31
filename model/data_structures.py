@@ -1,64 +1,83 @@
 # data_structures.py
 from shapely.geometry import Polygon
 from utils import time_str_to_minutes
+from dataclasses import dataclass
+from typing import Tuple, List
+import math
+import numpy as np
 
+@dataclass
 class Drone:
-    def __init__(self, id, max_weight, battery, speed, start_pos, consumption_rate):
-        self.id = id
-        self.max_weight = float(max_weight)
-        self.battery_capacity = int(battery)
-        self.current_battery = float(battery) # Start fully charged
-        self.speed = float(speed) # m/s
-        self.start_pos = tuple(map(float, start_pos))
-        self.current_pos = self.start_pos
-        self.consumption_rate = float(consumption_rate) # mAh per meter
-        self.current_payload_weight = 0.0
-        self.route = [] # List of delivery point IDs assigned
-        self.completed_deliveries = []
-        self.current_time = 0 # Simulation time for this drone (in minutes)
-
-    def __repr__(self):
-        return f"Drone(id={self.id}, max_w={self.max_weight}, batt={self.battery_capacity}mAh, speed={self.speed}m/s, start={self.start_pos})"
+    id: int
+    max_weight: float
+    battery_capacity: float
+    speed: float
+    start_pos: Tuple[float, float]
+    consumption_rate: float = 1.0  # mAh per meter
+    current_battery: float = 0.0
+    current_time: float = 0.0
 
     def reset(self):
-        """Resets drone state for a new simulation/evaluation."""
-        self.current_battery = float(self.battery_capacity)
-        self.current_pos = self.start_pos
-        self.current_payload_weight = 0.0
-        self.route = []
-        self.completed_deliveries = []
-        self.current_time = 0 # Reset simulation time
+        """Reset drone state for a new simulation"""
+        self.current_battery = self.battery_capacity
+        self.current_time = 0.0
 
+@dataclass
 class DeliveryPoint:
-    def __init__(self, id, pos, weight, priority, time_window_start_str, time_window_end_str):
-        self.id = id
-        self.pos = tuple(map(float, pos))
-        self.weight = float(weight)
-        self.priority = int(priority) # 1 (low) to 5 (high)
-        self.time_window_start_min = time_str_to_minutes(time_window_start_str)
-        self.time_window_end_min = time_str_to_minutes(time_window_end_str)
-        self.assigned_drone_id = None
-        self.status = "pending" # pending, assigned, completed, failed
+    id: int
+    pos: Tuple[float, float]
+    weight: float
+    priority: int
+    time_window_start_str: str
+    time_window_end_str: str
 
-    def __repr__(self):
-        start_t = self.time_window_start_min if self.time_window_start_min is not None else "N/A"
-        end_t = self.time_window_end_min if self.time_window_end_min is not None else "N/A"
-        return f"Delivery(id={self.id}, pos={self.pos}, w={self.weight}kg, prio={self.priority}, win=[{start_t}-{end_t}])"
+    def __post_init__(self):
+        """Convert time window strings to minutes"""
+        self.time_window_start = self._time_to_minutes(self.time_window_start_str)
+        self.time_window_end = self._time_to_minutes(self.time_window_end_str)
 
-    def is_time_window_valid(self, arrival_time_minutes):
-        """Checks if arrival time is within the delivery time window."""
-        if self.time_window_start_min is None or self.time_window_end_min is None:
-            return True # No time window constraint
+    def _time_to_minutes(self, time_str: str) -> int:
+        """Convert time string (HH:MM) to minutes since midnight"""
+        hours, minutes = map(int, time_str.split(':'))
+        return hours * 60 + minutes
+
+    def is_valid_time_window(self, time: float) -> bool:
+        """Check if the given time is within the delivery time window"""
+        return self.time_window_start <= time <= self.time_window_end
+
+    @property
+    def time_window_end_min(self) -> int:
+        """Convert time string to minutes since midnight"""
+        hours, minutes = map(int, self.time_window_end_str.split(':'))
+        return hours * 60 + minutes
+
+    def is_time_window_valid(self, arrival_time_minutes: float) -> bool:
+        """Check if arrival time is within the delivery time window"""
         return self.time_window_start_min <= arrival_time_minutes <= self.time_window_end_min
 
+@dataclass
 class NoFlyZone:
-    def __init__(self, id, active_start_str, active_end_str, coordinates):
-        self.id = id
-        self.active_start_min = time_str_to_minutes(active_start_str)
-        self.active_end_min = time_str_to_minutes(active_end_str)
-        # Ensure coordinates are tuples of floats
-        coords_float = [tuple(map(float, p)) for p in coordinates]
-        self.polygon = Polygon(coords_float) if len(coords_float) >= 3 else None
+    id: int
+    active_start_str: str
+    active_end_str: str
+    coordinates: List[Tuple[float, float]]
+    polygon = None  # Will be set when creating the polygon
+
+    @property
+    def active_start_min(self) -> int:
+        """Convert time string to minutes since midnight"""
+        hours, minutes = map(int, self.active_start_str.split(':'))
+        return hours * 60 + minutes
+
+    @property
+    def active_end_min(self) -> int:
+        """Convert time string to minutes since midnight"""
+        hours, minutes = map(int, self.active_end_str.split(':'))
+        return hours * 60 + minutes
+
+    def is_active_at_time(self, time_minutes: float) -> bool:
+        """Check if the no-fly zone is active at the given time"""
+        return self.active_start_min <= time_minutes <= self.active_end_min
 
     def __repr__(self):
         start_t = self.active_start_min if self.active_start_min is not None else "N/A"
