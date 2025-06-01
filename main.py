@@ -49,15 +49,15 @@ def generate_random_scenario_v2(num_drones=10, num_deliveries=30, num_no_fly_zon
 
     deliveries = []
     for i in range(1, num_deliveries + 1):
-        start_time = random_time_str(300, 900)  # 05:00 - 15:00 arası
-        end_time = random_time_str(901, 1200)   # 15:01 - 20:00 arası
+        first_time = random_time_str(300, 900)  # 05:00 - 15:00 arası
+        last_time = random_time_str(901, 1200)   # 15:01 - 20:00 arası
         delivery = {
             "id": i,
             "pos": (random.randint(0, area_size[0]), random.randint(0, area_size[1])),
             "weight": round(random.uniform(0.5, 5.0), 1),
             "priority": random.randint(1, 5),
-            "time_window_start_str": start_time,
-            "time_window_end_str": end_time,
+            "time_window_start_str": first_time,
+            "time_window_end_str": last_time,
         }
         deliveries.append(delivery)
 
@@ -134,7 +134,7 @@ def main():
     if not drones or not deliveries:
         print("Error: Failed to load scenario data")
         return
-
+    start_time = time.time() # Start timer
     print_scenario_info(drones, deliveries, no_fly_zones)
 
     visualizer = DeliveryVisualizer(drones, deliveries, no_fly_zones)
@@ -145,11 +145,8 @@ def main():
     optimizer = DeliveryOptimizer(drones, deliveries, no_fly_zones)
 
     print("\nStarting optimization...")
-    start_time = time.time()
+    
     best_solution, fitness_history = optimizer.optimize()
-    end_time = time.time()
-
-    print(f"\nOptimization completed in {end_time - start_time:.2f} seconds")
     print(f"Best solution found:")
     for drone_id, delivery_sequence in best_solution.items():
         print(f"Drone {drone_id}: {delivery_sequence}")
@@ -187,6 +184,7 @@ def main():
     total_deliveries = sum(len(seq) for seq in best_solution.values())
     total_percent = 100 * completed_deliveries / total_deliveries if total_deliveries > 0 else 0
     rapor_lines.append(f"\nToplam tamamlanan teslimat yüzdesi: {total_percent:.1f}%")
+    end_time = time.time() # End timer
     rapor_lines.append(f"Algoritma çalışma süresi: {end_time - start_time:.2f} saniye")
 
     for line in rapor_lines:
@@ -201,9 +199,6 @@ def main():
 
     print("\nShowing optimization progress...")
     visualizer.plot_fitness_history(fitness_history)
-
-    print("\nShowing final solution...")
-    visualizer.plot_scenario(best_solution)
 
 
 if __name__ == "__main__":
