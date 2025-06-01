@@ -1,0 +1,10 @@
+
+--- Drone Raporları ---
+Drone 1: Tamamlanan teslimat %: 100.0 | Ortalama enerji tüketimi: 62.53 mAh | Kalan batarya: 91.1%
+Drone 2: Tamamlanan teslimat %: 100.0 | Ortalama enerji tüketimi: 56.38 mAh | Kalan batarya: 89.3%
+Drone 3: Tamamlanan teslimat %: 100.0 | Ortalama enerji tüketimi: 57.79 mAh | Kalan batarya: 92.3%
+Drone 4: Tamamlanan teslimat %: 100.0 | Ortalama enerji tüketimi: 58.08 mAh | Kalan batarya: 85.5%
+Drone 5: Tamamlanan teslimat %: 100.0 | Ortalama enerji tüketimi: 56.37 mAh | Kalan batarya: 94.4%
+
+Toplam tamamlanan teslimat yüzdesi: 100.0%
+Algoritma çalışma süresi: 0.61 saniye
